@@ -4,7 +4,7 @@
 Library for communicating with [The Things Network](https://www.thethingsnetwork.org/) using a Hope RF RFM95/96/97/98(W) LoRa Transceiver Module.
 
 ## Modifications
-Allow to use tis library on other CPU's:
+Allow to use this library on other CPU's:
 - Add SPI.endTransaction()
 - Add pins as parameters to begin() function
 
