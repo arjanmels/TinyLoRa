@@ -288,11 +288,11 @@ TinyLoRa::TinyLoRa(int8_t rfm_irq, int8_t rfm_nss) {
      @return True if the RFM has been initialized
  */
  /**************************************************************************/
-bool TinyLoRa::begin() 
+bool TinyLoRa::begin(int8_t sck, int8_t miso, int8_t mosi) 
 {
 
   // start and configure SPI
-  SPI.begin();
+  SPI.begin(sck,miso,mosi);
   
   // RFM95 ss as output
   pinMode(_cs, OUTPUT);
