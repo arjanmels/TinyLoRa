@@ -37,7 +37,6 @@
 #define TINY_LORA_H
 
 #include <Arduino.h>
-#include <avr/pgmspace.h>
 
 // uncomment for debug output
 // #define DEBUG
@@ -69,8 +68,8 @@ typedef enum rfm_datarates
 } rfm_datarates_t;
 
 /** Region configuration*/
-#define US902 ///< Used in USA, Canada and South America
-//#define EU863 ///< Used in Europe
+//#define US902 ///< Used in USA, Canada and South America
+#define EU863 ///< Used in Europe
 //#define AU915 ///< Used in Australia
 //#define AS920 ///< Used in Asia
 
@@ -105,7 +104,7 @@ class TinyLoRa
     void setDatarate(rfm_datarates_t datarate);
     TinyLoRa(int8_t rfm_dio0, int8_t rfm_nss);
 		bool begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1);
-		void sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx);
+		void sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx, unsigned char Frame_Port=1);
 
 	private:
 		uint8_t randomNum;
