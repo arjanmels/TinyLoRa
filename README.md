@@ -1,7 +1,12 @@
-# Adafruit TinyLoRa Library [![Build Status](https://travis-ci.org/adafruit/TinyLoRa.svg?branch=master)](https://travis-ci.org/adafruit/TinyLoRa)
+# Modified Adafruit TinyLoRa Library [![Build Status](https://travis-ci.org/adafruit/TinyLoRa.svg?branch=master)](https://travis-ci.org/adafruit/TinyLoRa)
 
 
 Library for communicating with [The Things Network](https://www.thethingsnetwork.org/) using a Hope RF RFM95/96/97/98(W) LoRa Transceiver Module.
+
+## Modifications
+Allow to use tis library on other CPU's:
+- Add SPI.endTransaction()
+- Add pins as parameters to begin() function
 
 ## Documentation/Links
 
