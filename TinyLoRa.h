@@ -99,7 +99,7 @@ class TinyLoRa
 {
 	public:
 		uint8_t txrandomNum;  ///<random number for AES
-		uint16_t frameCounter;  ///<frame counter
+		uint32_t frameCounter;  ///<frame counter
     void setChannel(rfm_channels_t channel);
     void setDatarate(rfm_datarates_t datarate);
     TinyLoRa(int8_t rfm_dio0, int8_t rfm_nss);

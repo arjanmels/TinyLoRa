@@ -487,7 +487,7 @@ uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
               FPort to use, must be in the range 1..223 for normal messages
 */
 /**************************************************************************/
-void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx, unsigned char Frame_Port)
+void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, uint32_t Frame_Counter_Tx, unsigned char Frame_Port)
 {
   
   //Define variables
@@ -576,7 +576,7 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, unsigned
               Direction of message (is up).
 */
 /**************************************************************************/
-void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
+void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, uint32_t Frame_Counter, unsigned char Direction)
 {
   unsigned char i = 0x00;
   unsigned char j;
@@ -611,8 +611,8 @@ void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, u
     Block_A[10] = (Frame_Counter & 0x00FF);
     Block_A[11] = ((Frame_Counter >> 8) & 0x00FF);
 
-    Block_A[12] = 0x00; //Frame counter upper Bytes
-    Block_A[13] = 0x00;
+    Block_A[12] = ((Frame_Counter >> 16) & 0x00FF);
+    Block_A[13] = ((Frame_Counter >> 24) & 0x00FF);
 
     Block_A[14] = 0x00;
 
@@ -661,7 +661,7 @@ void TinyLoRa::Encrypt_Payload(unsigned char *Data, unsigned char Data_Length, u
               Direction of message (is up?).
 */
 /**************************************************************************/
-void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char Data_Length, unsigned int Frame_Counter, unsigned char Direction)
+void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsigned char Data_Length, uint32_t Frame_Counter, unsigned char Direction)
 {
   unsigned char i;
   unsigned char Block_B[16];
@@ -708,8 +708,8 @@ void TinyLoRa::Calculate_MIC(unsigned char *Data, unsigned char *Final_MIC, unsi
   Block_B[10] = (Frame_Counter & 0x00FF);
   Block_B[11] = ((Frame_Counter >> 8) & 0x00FF);
 
-  Block_B[12] = 0x00; //Frame counter upper bytes
-  Block_B[13] = 0x00;
+  Block_B[12] = ((Frame_Counter >> 16) & 0x00FF);
+  Block_B[13] = ((Frame_Counter >> 24) & 0x00FF);
 
   Block_B[14] = 0x00;
   Block_B[15] = Data_Length;
