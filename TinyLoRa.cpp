@@ -282,6 +282,16 @@ TinyLoRa::TinyLoRa(int8_t rfm_irq, int8_t rfm_nss) {
  PUBLIC FUNCTIONS
  ***************************************************************************/
 
+static TinyLoRa * TinyLoRaForInterrupt=NULL;
+
+void TinyLoRaInterrupt() {
+  if (TinyLoRaForInterrupt) {
+    // Transmit done switch RFM to sleep
+    TinyLoRaForInterrupt->RFM_Write(REG_OP_MODE,MODE_SLEEP);
+    TinyLoRaForInterrupt=NULL;
+  }
+}
+
  /**************************************************************************/
  /*!
      @brief  Initializes the RFM, including configuring SPI, configuring
@@ -301,16 +311,18 @@ bool TinyLoRa::begin(int8_t sck, int8_t miso, int8_t mosi)
   // RFM95 _irq as input
   pinMode(_irq, INPUT);
 
+  RFM_Read(0x42); // dummy read needed after reset
+
   uint8_t ver = RFM_Read(0x42);
   if(ver!=18){
     return 0;
   }
   
   //Switch RFM to sleep
-  RFM_Write(0x01,MODE_SLEEP);
+  RFM_Write(REG_OP_MODE,MODE_SLEEP);
 
   //Set RFM in LoRa mode
-  RFM_Write(0x01,MODE_LORA);
+  RFM_Write(REG_OP_MODE,MODE_LORA);
 
   //PA pin (maximal power)
   RFM_Write(0x09,0xFF);
@@ -339,6 +351,8 @@ bool TinyLoRa::begin(int8_t sck, int8_t miso, int8_t mosi)
   //Rx base adress
   RFM_Write(0x0F,0x00);
 
+  attachInterrupt(_irq,TinyLoRaInterrupt,RISING);
+
   // init frame counter
   frameCounter = 0x0000;
 
@@ -361,7 +375,7 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
   unsigned char i;
 
   //Set RFM in Standby mode wait on mode ready
-  RFM_Write(MODE_STDBY,0x81);
+  RFM_Write(REG_OP_MODE,MODE_STDBY|MODE_LORA);
   
   // wait for standby mode
   delay(10);
@@ -397,16 +411,12 @@ void TinyLoRa::RFM_Send_Package(unsigned char *RFM_Tx_Package, unsigned char Pac
     RFM_Write(0x00,*RFM_Tx_Package);
     RFM_Tx_Package++;
   }
-  //Switch RFM to Tx
-  RFM_Write(0x01,MODE_TX);
 
-  //Wait _irq to pull high
-  while(digitalRead(_irq) == LOW)
-  {
-    
-  }
-  //Switch RFM to sleep
-  RFM_Write(0x01,MODE_SLEEP);
+  // set for interrupt routine;
+  TinyLoRaForInterrupt=this;
+
+  //Switch RFM to Tx
+  RFM_Write(0x01,MODE_TX|MODE_LORA);
 }
 
 /**************************************************************************/
@@ -466,7 +476,7 @@ uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
 
     SPI.endTransaction();
       // br: SPI Transfer Debug
-    #ifdef DEBUG
+    #ifndef DEBUG
       Serial.print("SPI Read ADDR: ");
       Serial.print(RFM_Address, HEX);
       Serial.print(" DATA: ");
@@ -485,11 +495,15 @@ uint8_t TinyLoRa::RFM_Read(uint8_t RFM_Address) {
               Length of data to be sent.
     @param    Frame_Port
               FPort to use, must be in the range 1..223 for normal messages
+    @return   returns true is send succesfull, return false otherwise
 */
 /**************************************************************************/
-void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, uint32_t Frame_Counter_Tx, unsigned char Frame_Port)
+bool TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, uint32_t Frame_Counter_Tx, unsigned char Frame_Port)
 {
-  
+  if ( (RFM_Read(REG_OP_MODE) & MODE_MASK) != MODE_SLEEP )
+    return false;
+
+
   //Define variables
   unsigned char i;
 
@@ -560,6 +574,8 @@ void TinyLoRa::sendData(unsigned char *Data, unsigned char Data_Length, uint32_t
   #ifdef DEBUG
     Serial.println("sent package!");
   #endif
+  
+  return true;
 }
 
 /**************************************************************************/

@@ -77,9 +77,11 @@ typedef enum rfm_datarates
 #define MODE_SLEEP  0x00  ///<low-power mode
 #define MODE_LORA   0x80  ///<LoRa operating mode
 #define MODE_STDBY  0x01  ///<Osc. and baseband disabled
-#define MODE_TX     0x83  ///<Configures and transmits packet
+#define MODE_TX     0x03  ///<Configures and transmits packet
+#define MODE_MASK   0x07  ///<Configures and transmits packet
 
 /* RFM Registers */
+#define REG_OP_MODE                0x01 ///<PA selection and Output Power control
 #define REG_PA_CONFIG              0x09 ///<PA selection and Output Power control
 #define REG_PREAMBLE_MSB           0x20 ///<Preamble Length, MSB
 #define REG_PREAMBLE_LSB           0x21 ///<Preamble Length, LSB
@@ -104,7 +106,7 @@ class TinyLoRa
     void setDatarate(rfm_datarates_t datarate);
     TinyLoRa(int8_t rfm_dio0, int8_t rfm_nss);
 		bool begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1);
-		void sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx, unsigned char Frame_Port=1);
+		bool sendData(unsigned char *Data, unsigned char Data_Length, unsigned int Frame_Counter_Tx, unsigned char Frame_Port=1);
 
 	private:
 		uint8_t randomNum;
@@ -127,6 +129,9 @@ class TinyLoRa
 		void AES_Shift_Rows(unsigned char(*State)[4]);
 		void AES_Mix_Collums(unsigned char(*State)[4]);
 		void AES_Calculate_Round_Key(unsigned char Round, unsigned char *Round_Key);
+
+    friend void TinyLoRaInterrupt();
+    friend void loop();
 
 };
 
