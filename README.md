@@ -8,6 +8,8 @@ Allow to use this library on other CPU's:
 - Add SPI.endTransaction()
 - Add pins as parameters to begin() function
 
+Implemented asynchronous send
+
 ## Documentation/Links
 
 The Doxygen documentation is automatically generated from the source files
